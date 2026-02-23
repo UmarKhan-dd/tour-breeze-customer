@@ -1,0 +1,28 @@
+{
+  "tasks": [
+    {
+      "id": "task-5",
+      "title": "Create Login Screen",
+      "status": "pending",
+      "description": "Login screen with email/password fields, remember me checkbox, forgot password link, and login button. Include social login options (Google, Apple) and link to signup screen."
+    },
+    {
+      "id": "task-6",
+      "title": "Create Signup Screen",
+      "status": "pending",
+      "description": "Signup screen with name, email, password, confirm password fields. Include Agent/Customer toggle, terms checkbox, and signup button. Link to login screen."
+    },
+    {
+      "id": "task-7",
+      "title": "Update Agent Dashboard",
+      "status": "pending",
+      "description": "Update Agent Dashboard to display incoming multi-property tour requests from customers. Agents need to see all properties requested in one go before Accepting/Rejecting."
+    },
+    {
+      "id": "task-8",
+      "title": "Wire Complete Navigation Flow",
+      "status": "pending",
+      "description": "Connect all screens: Home -> Scheduler -> Agent List -> Agent Detail -> Confirmation. Ensure back buttons and deep links work correctly."
+    }
+  ]
+}
