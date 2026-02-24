@@ -1,12 +1,7 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
+import React, { useState, useCallback } from "react";
+import { View, Text, TouchableOpacity, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   Bell,
@@ -16,6 +11,7 @@ import {
   CheckCircle,
   Clock,
   Trash2,
+  ChevronLeft,
 } from "lucide-react-native";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 
@@ -77,6 +73,7 @@ const notificationsData = [
 type NotificationItem = (typeof notificationsData)[0];
 
 export default function NotificationsScreen() {
+  const router = useRouter();
   const [notifications, setNotifications] = useState(notificationsData);
   const [filter, setFilter] = useState<"all" | "unread">("all");
 
@@ -87,19 +84,23 @@ export default function NotificationsScreen() {
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
-  const markAsRead = (id: number) => {
+  const handleFilterChange = useCallback((newFilter: "all" | "unread") => {
+    setFilter(newFilter);
+  }, []);
+
+  const markAsRead = useCallback((id: number) => {
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
     );
-  };
+  }, []);
 
-  const markAllAsRead = () => {
+  const markAllAsRead = useCallback(() => {
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-  };
+  }, []);
 
-  const deleteNotification = (id: number) => {
+  const deleteNotification = useCallback((id: number) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
-  };
+  }, []);
 
   const renderNotification = ({
     item,
@@ -186,6 +187,16 @@ export default function NotificationsScreen() {
       <View className="px-6 pt-4 pb-2">
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center gap-3">
+            <TouchableOpacity
+              onPress={() => router.back()}
+              className="p-2 bg-card rounded-full border border-border"
+            >
+              <ChevronLeft
+                size={20}
+                className="text-foreground"
+                strokeWidth={2.5}
+              />
+            </TouchableOpacity>
             <View className="relative">
               <Bell
                 size={24}
@@ -212,7 +223,7 @@ export default function NotificationsScreen() {
       <View className="px-6 py-4">
         <View className="flex-row bg-muted rounded-lg p-1">
           <TouchableOpacity
-            onPress={() => setFilter("all")}
+            onPress={() => handleFilterChange("all")}
             className={`flex-1 py-2 rounded-md ${filter === "all" ? "bg-background shadow-sm" : ""}`}
           >
             <Text
@@ -222,7 +233,7 @@ export default function NotificationsScreen() {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => setFilter("unread")}
+            onPress={() => handleFilterChange("unread")}
             className={`flex-1 py-2 rounded-md ${filter === "unread" ? "bg-background shadow-sm" : ""}`}
           >
             <Text

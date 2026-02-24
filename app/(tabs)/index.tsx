@@ -292,7 +292,10 @@ export default function HomeScreen() {
             </Text>
           </View>
           <View className="flex-row items-center gap-3">
-            <TouchableOpacity className="relative">
+            <TouchableOpacity
+              onPress={() => router.push("/notifications")}
+              className="relative"
+            >
               <Bell size={24} color="#6b7280" />
               <View className="absolute -top-1 -right-1 bg-red-500 rounded-full w-4 h-4 items-center justify-center">
                 <Text className="text-white text-[10px] font-bold">2</Text>
@@ -505,7 +508,17 @@ export default function HomeScreen() {
                 </Text>
               </View>
               <TouchableOpacity
-                onPress={() => router.push("/schedule-tour")}
+                onPress={() => {
+                  const selectedProps = featuredProperties.filter((p) =>
+                    selectedIds.has(p.id),
+                  );
+                  router.push({
+                    pathname: "/schedule-tour",
+                    params: {
+                      properties: JSON.stringify(selectedProps),
+                    },
+                  });
+                }}
                 className="bg-primary px-6 py-3 rounded-xl flex-row items-center gap-2"
               >
                 <Calendar size={20} color="white" />

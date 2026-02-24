@@ -19,6 +19,10 @@ import {
   MapPin,
 } from "lucide-react-native";
 
+// Import the new screens
+import LoginScreen from "./LoginScreen";
+import SignupScreen from "./SignupScreen";
+
 // Mock Data
 const stats = [
   {

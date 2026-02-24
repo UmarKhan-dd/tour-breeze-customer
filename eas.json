@@ -13,7 +13,7 @@
       "android": {
         "buildType": "apk"
       },
-      "node": "20.11.1"
+      "node": "20.19.4"
     },
     "production": {
       "autoIncrement": true

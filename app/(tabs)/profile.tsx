@@ -1,7 +1,16 @@
 import React from "react";
-import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  Alert,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useAuth } from "@/lib/AuthContext";
 import {
   Settings,
   Bell,
@@ -13,18 +22,9 @@ import {
   LogOut,
   Heart,
   Clock,
+  UserX,
 } from "lucide-react-native";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
-
-// Mock user data
-const user = {
-  name: "Alex Johnson",
-  email: "alex.johnson@email.com",
-  avatar:
-    "https://images.unsplash.com/photo-1517340073101-289191978ae8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzR8fDMlMjBncmFwaGljc3xlbnwwfHwwfHx8MA%3D%3D",
-  phone: "+1 (555) 123-4567",
-  location: "San Francisco, CA",
-};
 
 // Mock stats
 const stats = [
@@ -47,6 +47,7 @@ const quickLinks = [
     icon: Settings,
     color: "#6b7280",
     screen: "settings",
+    link: "",
   },
   {
     id: 2,
@@ -54,6 +55,7 @@ const quickLinks = [
     icon: Bell,
     color: "#6b7280",
     screen: "notifications",
+    link: "/notifications",
   },
   {
     id: 3,
@@ -61,6 +63,15 @@ const quickLinks = [
     icon: Calendar,
     color: "#6b7280",
     screen: "appointments",
+    link: "",
+  },
+  {
+    id: 4,
+    title: "Blocked Agents",
+    icon: UserX,
+    color: "#6b7280",
+    screen: "blocked-agents",
+    link: "/agent-blocklist",
   },
 ];
 
@@ -68,6 +79,37 @@ type StatItem = (typeof stats)[0];
 type LinkItem = (typeof quickLinks)[0];
 
 export default function ProfileScreen() {
+  const router = useRouter();
+  const { user, logout } = useAuth();
+
+  // Default avatar and location for all users
+  const defaultAvatar =
+    "https://images.unsplash.com/photo-1517340073101-289191978ae8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzR8fDMlMjBncmFwaGljc3xlbnwwfHwwfHx8MA%3D%3D";
+  const defaultLocation = "San Francisco, CA";
+
+  const handleLogout = () => {
+    Alert.alert(
+      "Log Out",
+      "Are you sure you want to log out?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => {},
+          style: "cancel",
+        },
+        {
+          text: "Log Out",
+          onPress: async () => {
+            await logout();
+            router.replace("/login");
+          },
+          style: "destructive",
+        },
+      ],
+      { cancelable: false },
+    );
+  };
+
   const renderStatCard = ({
     item,
     index,
@@ -78,6 +120,7 @@ export default function ProfileScreen() {
     const Icon = item.icon;
     return (
       <Animated.View
+        key={item.id}
         entering={FadeInDown.delay(index * 100).springify()}
         className="flex-1"
       >
@@ -107,9 +150,26 @@ export default function ProfileScreen() {
     index: number;
   }) => {
     const Icon = item.icon;
+
+    const handleQuickLinkPress = () => {
+      if (item.link) {
+        router.push(item.link as any);
+      } else if (item.screen === "appointments") {
+        router.push("/(tabs)/appointments");
+      } else if (item.screen === "settings") {
+        router.push("/settings");
+      }
+    };
+
     return (
-      <Animated.View entering={FadeInDown.delay(300 + index * 100).springify()}>
-        <TouchableOpacity className="bg-card rounded-xl p-4 flex-row items-center justify-between border border-border">
+      <Animated.View
+        key={item.id}
+        entering={FadeInDown.delay(300 + index * 100).springify()}
+      >
+        <TouchableOpacity
+          onPress={handleQuickLinkPress}
+          className="bg-card rounded-xl p-4 flex-row items-center justify-between border border-border"
+        >
           <View className="flex-row items-center gap-3">
             <View
               className="w-10 h-10 rounded-full items-center justify-center"
@@ -146,7 +206,7 @@ export default function ProfileScreen() {
           <View className="bg-card rounded-2xl p-6 items-center border border-border shadow-sm">
             <View className="relative mb-4">
               <Image
-                source={{ uri: user.avatar }}
+                source={{ uri: defaultAvatar }}
                 className="w-24 h-24 rounded-full"
                 resizeMode="cover"
               />
@@ -156,20 +216,24 @@ export default function ProfileScreen() {
             </View>
 
             <Text className="text-xl font-bold text-foreground mb-1">
-              {user.name}
+              {user?.name || "User"}
             </Text>
             <Text className="text-sm text-muted-foreground mb-4">
-              {user.email}
+              {user?.email || "email@example.com"}
             </Text>
 
             <View className="w-full gap-3">
               <View className="flex-row items-center gap-3">
                 <Mail size={16} color="#6b7280" />
-                <Text className="text-sm text-foreground">{user.email}</Text>
+                <Text className="text-sm text-foreground">
+                  {user?.email || "email@example.com"}
+                </Text>
               </View>
               <View className="flex-row items-center gap-3">
                 <MapPin size={16} color="#6b7280" />
-                <Text className="text-sm text-foreground">{user.location}</Text>
+                <Text className="text-sm text-foreground">
+                  {defaultLocation}
+                </Text>
               </View>
             </View>
           </View>
@@ -203,7 +267,10 @@ export default function ProfileScreen() {
           entering={FadeInDown.delay(600).springify()}
           className="px-6"
         >
-          <TouchableOpacity className="bg-destructive/10 rounded-xl p-4 flex-row items-center justify-center gap-2 border border-destructive/20">
+          <TouchableOpacity
+            onPress={handleLogout}
+            className="bg-destructive/10 rounded-xl p-4 flex-row items-center justify-center gap-2 border border-destructive/20"
+          >
             <LogOut size={20} color="#ef4444" />
             <Text className="text-base font-semibold text-destructive">
               Log Out
